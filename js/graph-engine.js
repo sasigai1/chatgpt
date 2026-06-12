@@ -260,30 +260,40 @@
     }
 
     /**
-     * 路径搜索：双向 BFS 找到两节点间的最短路径，再 DFS 枚举若干条不超过 maxDepth 的路径
+     * 路径搜索：迭代加深 DFS，按深度从小到大枚举路径，保证最短路径优先返回
      */
     findPaths(aId, bId, maxDepth, maxPaths) {
       maxDepth = maxDepth || 4;
       maxPaths = maxPaths || 5;
       const paths = [];
-      const visited = new Set([aId]);
+      const seenKeys = new Set();
+      let budget = 0; // 防止枢纽节点导致搜索爆炸
 
-      const dfs = (id, path) => {
-        if (paths.length >= maxPaths) return;
-        if (path.length > maxDepth) return;
+      const dfs = (id, path, limit, visited) => {
+        if (paths.length >= maxPaths || ++budget > 30000) return;
         for (const e of this.g.neighbors(id)) {
           if (paths.length >= maxPaths) return;
-          if (e.to === bId) {
-            paths.push(this._explainChain(aId, path.concat([{ nodeId: e.to, rel: e.rel, dir: e.dir }])));
-          } else if (!visited.has(e.to) && path.length + 1 < maxDepth) {
+          if (e.to === bId && path.length + 1 >= 1) {
+            const full = path.concat([{ nodeId: e.to, rel: e.rel, dir: e.dir }]);
+            const key = full.map(p => p.nodeId + ":" + p.rel + p.dir).join(">");
+            if (!seenKeys.has(key)) {
+              seenKeys.add(key);
+              paths.push(this._explainChain(aId, full));
+            }
+          } else if (!visited.has(e.to) && path.length + 1 < limit) {
             visited.add(e.to);
-            dfs(e.to, path.concat([{ nodeId: e.to, rel: e.rel, dir: e.dir }]));
+            dfs(e.to, path.concat([{ nodeId: e.to, rel: e.rel, dir: e.dir }]), limit, visited);
             visited.delete(e.to);
           }
         }
       };
-      dfs(aId, []);
-      paths.sort((x, y) => x.hops - y.hops);
+      for (let limit = 1; limit <= maxDepth && paths.length < maxPaths; limit++) {
+        budget = 0;
+        dfs(aId, [], limit, new Set([aId]));
+      }
+      // 同等跳数下，经过类别枢纽节点的路径信息量低，排序时加惩罚
+      const score = p => p.hops + p.nodeIds.filter(id => this.g.nodes.get(id).type === "category").length * 2;
+      paths.sort((x, y) => score(x) - score(y));
       return paths;
     }
 
