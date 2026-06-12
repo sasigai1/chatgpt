@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>知识图谱推理问答 · KG Chat</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="logo">🧠 知识图谱推理问答</div>
+    <div id="stats-bar" class="stats-bar"></div>
+  </header>
+
+  <main class="layout">
+    <!-- 左侧：聊天区 -->
+    <section class="chat-panel">
+      <div id="messages" class="messages"></div>
+      <div class="examples">
+        <span class="example">量子力学是什么</span>
+        <span class="example">牛顿和微积分有什么关系</span>
+        <span class="example">机器学习有哪些内容</span>
+        <span class="example">监督学习和无监督学习的区别</span>
+        <span class="example">介绍一下知识图谱</span>
+      </div>
+      <div class="input-bar">
+        <textarea id="user-input" rows="1" placeholder="输入问题，例如：深度学习和神经科学有什么关系？"></textarea>
+        <button id="send-btn">发送</button>
+      </div>
+    </section>
+
+    <!-- 右侧：推理详情面板 -->
+    <aside class="reasoning-panel">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="steps">推理过程</button>
+        <button class="tab-btn" data-tab="graph">图谱可视化</button>
+        <button class="tab-btn" data-tab="semantic">语义分析</button>
+      </div>
+      <div class="tab-content">
+        <div id="tab-steps" class="tab-pane active">
+          <div id="reasoning-steps" class="steps-empty">提交问题后，这里会展示完整的图谱推理步骤。</div>
+        </div>
+        <div id="tab-graph" class="tab-pane">
+          <canvas id="graph-canvas" width="640" height="560"></canvas>
+          <div class="graph-legend">
+            <span><i style="background:#4f8ef7"></i>自然科学</span>
+            <span><i style="background:#34c77b"></i>技术与工程</span>
+            <span><i style="background:#f7a440"></i>人文社科</span>
+            <span><i style="background:#e8636f"></i>生活与文化</span>
+            <span><i style="background:#ffd24e"></i>推理路径</span>
+          </div>
+        </div>
+        <div id="tab-semantic" class="tab-pane">
+          <div id="semantic-detail" class="steps-empty">提交问题后，这里会展示分词、消歧、同义词扩展与意图识别结果。</div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- 知识库数据（200+ 领域 / 1000+ 节点） -->
+  <script src="data/kb-part1.js"></script>
+  <script src="data/kb-part2.js"></script>
+  <script src="data/kb-part3.js"></script>
+  <script src="data/kb-part4.js"></script>
+  <!-- 核心模块 -->
+  <script src="js/graph-engine.js"></script>
+  <script src="js/semantic-analyzer.js"></script>
+  <script src="js/visualizer.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
